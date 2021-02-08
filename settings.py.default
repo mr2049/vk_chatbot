@@ -1,0 +1,170 @@
+# -*- coding: utf-8 -*-
+
+GROUP_ID = ''
+GROUP_TOKEN = ''
+
+INTENTS = [
+    {
+        'name': 'Помощь пользователю',
+        'tokens': ['/help', 'привет', 'здравств'],
+        'scenario': None,
+        'answer': 'Привет, я помогаю заказывать авиабилеты. Для начала работы нужно ввести /ticket.'
+    },
+    {
+        'name': 'Благодарность',
+        'tokens': ['спасиб', 'благод', 'сэнк'],
+        'scenario': None,
+        'answer': 'Всегда пожалуйста, рад был помочь.'
+    },
+    {
+        'name': 'Прощание',
+        'tokens': ['пока', 'до свид', 'досвид', 'счастл', 'гудб'],
+        'scenario': None,
+        'answer': 'Хорошего вам дня, приходите ещё.'
+    },
+    {
+        'name': 'Оформление билета',
+        'tokens': ['/ticket'],
+        'scenario': 'order_ticket',
+        'answer': None
+    }
+]
+
+SCENARIOS = {
+    'order_ticket': {
+        'first_step': 'step1',
+        'steps': {
+            'step0': {
+                'text': 'Вы действительно хотите остановить выполнение заказа?\n'
+                        'Да/Нет',
+                'failure_text': 'Необходимо указать Да/Нет.',
+                'handler': 'handle_confirmation',
+                'next_step': None,
+                'additional_next_step': 'step0.1'
+            },
+            'step0.1': {
+                'text': 'Оформление билета остановлено. Для того, чтобы начать заново введите /ticket.',
+                'failure_text': None,
+                'handler': None,
+                'next_step': None,
+                'additional_next_step': None
+            },
+            'step1': {
+                'text': 'Укажите ваше имя.',
+                'failure_text': 'Слишком странное имя, вы ведь не ребёнок Илона Маска, попробуйте ввести что-то ещё.',
+                'handler': 'handle_name',
+                'next_step': 'step2',
+                'additional_next_step': None
+            },
+            'step2': {
+                'text': 'Введите город, из которого вы хотите улететь.',
+                'failure_text': 'С этим городом нет авиасообщения, вот список досутпных городов:\n{available_cities}',
+                'handler': 'handle_departure_city',
+                'next_step': 'step3',
+                'additional_next_step': None
+            },
+            'step3': {
+                'text': 'Введите город, в который вы летите.',
+                'failure_text': 'С этим городом нет авиасообщения, вот список досутпных городов:\n{available_cities}',
+                'handler': 'handle_arrival_city',
+                'next_step': 'step4',
+                'additional_next_step': 'step3.1'
+            },
+            'step3.1': {
+                'text': 'К сожалению между выбранными городами нет авиасообщения. Можете попытаться найти другой рейс,'
+                        'для этого необходимо ввести /ticket.',
+                'failure_text': None,
+                'handler': None,
+                'next_step': None,
+                'additional_next_step': None
+            },
+            'step4': {
+                'text': 'Введите желаемую дату вылета в формате ДД-ММ-ГГГГ.',
+                'failure_text': 'Дата должна быть не ранее сегодняшнего дня, и не позднее следующего года.\n'
+                                'Допустимый формат - ДД-ММ-ГГГГ.\n'
+                                'Между числом, месяцем, и годом, должно стоять тире (-).',
+                'handler': 'handle_date',
+                'next_step': 'step5',
+                'additional_next_step': None
+            },
+            'step5': {
+                'text': 'Выберите один из доступных рейсов:\n'
+                        '{result_flights_str}',
+                'failure_text': 'Некорректный ввод, необходимо указать порядковый номер рейса (1-5).',
+                'handler': 'handle_flights',
+                'next_step': 'step6',
+                'additional_next_step': None
+            },
+            'step6': {
+                'text': 'Выберите количество мест.',
+                'failure_text': 'Допустимое значение от 1 до 5.',
+                'handler': 'handle_spaces',
+                'next_step': 'step7',
+                'additional_next_step': None
+            },
+            'step7': {
+                'text': 'Желаете оставить пожелания, предложения, угрозы?\n'
+                        'Мы обязательно их изучим.\n'
+                        'Да/Нет',
+                'failure_text': 'Необходимо указать Да/Нет.',
+                'handler': 'handle_confirmation',
+                'next_step': 'step8',
+                'additional_next_step': 'step7.1'
+            },
+            'step7.1': {
+                'text': 'Введите ваши пожелания, предложения, угрозы.',
+                'failure_text': None,
+                'handler': 'handle_comment',
+                'next_step': 'step8',
+                'additional_next_step': None
+            },
+            'step8': {
+                'text': 'Правильно ли введены все данные?\n'
+                        'Имя - {name}\n'
+                        'Город отправления - {departure}\n'
+                        'Город прибытия - {arrival}\n'
+                        '{flight_date_to_output}\n'
+                        'Количество мест - {spaces}\n'
+                        'Да/Нет',
+                'failure_text': 'Необходимо указать Да/Нет.',
+                'handler': 'handle_confirmation',
+                'next_step': 'step9',
+                'additional_next_step': 'step0.1'
+            },
+            'step9': {
+                'text': 'Укажите номер телефона в формате X-XXX-XXX-XX-XX.',
+                'failure_text': 'Номер узанан некорректно.\n'
+                                'Допустимый мормат - X-XXX-XXX-XX-XX.\n'
+                                'Между группами цифр должно стоять тире (-).',
+                'handler': 'handle_phone',
+                'next_step': 'step10',
+                'additional_next_step': None
+            },
+            'step10': {
+                'text': 'Укажите email.',
+                'failure_text': 'Email узанан некорректно, такой почтовый сервис точно существует?..',
+                'handler': 'handle_email',
+                'next_step': 'step11',
+                'additional_next_step': None
+            },
+            'step11': {
+                'text': 'Оформление прошёл успешно, в ближайшее время с вами свяжутся по номеру {phone} '
+                        'для подтверждения заказа.\n'
+                        'Билет отправлен на почту {email}, в случае подтверждения, его необходимо распечатать.',
+                'image': 'handle_generate_ticket',
+                'failure_text': None,
+                'handler': None,
+                'next_step': None,
+                'additional_next_step': None
+            }
+        }
+    }
+}
+
+DEFAULT_ANSWER = INTENTS[0]['answer']
+
+DB_CONFIG = {'provider': 'postgres',
+             'user': 'postgres',
+             # 'password': '',
+             'host': 'localhost',
+             'database': 'air_ticket_bot'}
